@@ -1,0 +1,15 @@
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+dist/
+build/
+*.spec
+
+# 调试产物（预览图、临时配置）
+tools/_*.png
+tools/_*.json
+
+# 本地配置与日志（真机上生成在 %LOCALAPPDATA%\MiBandHeartHUD）
+config.json
+*.log
