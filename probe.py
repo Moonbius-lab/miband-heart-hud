@@ -14,7 +14,8 @@ import argparse
 import asyncio
 import sys
 
-from hr_hud.ble import HR_MEASUREMENT, HeartRateReader, parse_hr_measurement, scan
+from hr_hud.ble import HeartRateReader, scan
+from hr_hud.util import setup_console
 
 
 def _bar(bpm: int) -> str:
@@ -37,6 +38,7 @@ async def list_devices(timeout: float) -> list:
 
 
 async def main() -> int:
+    setup_console()
     parser = argparse.ArgumentParser(description="小米手环心率链路验证")
     parser.add_argument("--address", default="", help="指定设备地址，默认自动挑选")
     parser.add_argument("--seconds", type=float, default=45.0, help="连接后观察多少秒")

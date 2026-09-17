@@ -170,8 +170,3 @@ class HeartMonitor:
                 escalated=True,
             )
         return None
-
-    def reconfigure(self, **kwargs) -> None:
-        for key, value in kwargs.items():
-            if hasattr(self, key) and value is not None:
-                setattr(self, key, value)

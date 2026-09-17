@@ -19,8 +19,26 @@
 >
 > 实测结论：手环开启「心率广播」后，**不需要配对**，PC 端直接连上就能读到标准心率数据
 > （19 个采样：78–84 BPM，平均 82）。任务栏组件、Windows 11 通知、弹窗均已实机跑通。
+>
+> **项目状态：已归档**（2026-09-17）。目标功能全部完成、代码已整理，不再继续开发。
+> 原先计划的 MSIX 安装包（照 FluentFlyout 的安装方式）没有做，现成的打包脚本见
+> [`packaging/README.md`](packaging/README.md)。
 
 ---
+
+## 目录结构
+
+```
+hr_hud/        程序本体：ble(蓝牙) / taskbar(任务栏组件) / flyout(弹窗) / tray(托盘)
+               toast(通知) / zones(心率区间判定) / rest(休息提醒) / win32 / widget_render
+run.py         入口：python run.py [--demo | --scan | --test-alert | --address | --diag]
+probe.py       链路验证：扫描手环、把心率打在控制台
+assets/        图标（Fluent UI System Icons）+ 生成好的 app.ico
+scripts/       源码方式启动的小脚本（用 pythonw，不弹控制台）
+tools/         开发辅助：界面预览、逻辑自测、任务栏排障（见 tools/README.md）
+packaging/     PyInstaller 打包（见 packaging/README.md）
+docs/          预览图
+```
 
 ## 快速使用
 
@@ -37,6 +55,13 @@ python run.py
 python run.py --scan         # 只扫描附近设备
 python run.py --demo         # 演示模式：模拟心率，不需要手环
 python run.py --test-alert   # 启动后立刻发一条测试提醒
+
+# 源码方式后台启动（不弹控制台窗口）：scripts\启动（无控制台）.bat
+
+# 不用手环也能自查：判定逻辑 / 休息时段 / 界面渲染
+python tools\test_zones.py
+python tools\test_rest.py
+python tools\preview_widget.py
 ```
 
 启动后：
@@ -59,7 +84,7 @@ python run.py --test-alert   # 启动后立刻发一条测试提醒
 - **弹窗**：极简版——爱心图标 + "心率" + 数值。没有底色块、没有单位、没有副标题，
   数值按心率区间变色（绿=正常 / 红=过高 / 蓝=偏低）。
 - **颜色**：深浅色跟随系统主题（运行中也会跟，每 10 秒检查一次）；
-  装饰性图标用系统强调色，心率数值保留功能色。
+  爱心统一用固定红色（配置里的 `heart_color` 可改），心率数值保留功能色。
 
 ### ⚠️ 游戏里能不能看到
 

@@ -40,13 +40,11 @@ WM_PAINT = 0x000F
 WM_ERASEBKGND = 0x0014
 WM_MOUSEACTIVATE = 0x0021
 WM_DPICHANGED = 0x02E0
-WM_TIMER = 0x0113
 MA_NOACTIVATE = 3
 
 # ---- GDI ----
 PS_SOLID = 0
 TRANSPARENT = 1
-SRCCOPY = 0x00CC0020
 ANTIALIASED_QUALITY = 4
 CLEARTYPE_QUALITY = 5
 
@@ -363,10 +361,6 @@ def raise_child(hwnd: int) -> None:
                         SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE)
 
 
-def invalidate(hwnd: int) -> None:
-    user32.InvalidateRect(wintypes.HWND(hwnd), None, False)
-
-
 def is_window(hwnd: int) -> bool:
     return bool(user32.IsWindow(wintypes.HWND(hwnd)))
 
@@ -448,54 +442,3 @@ def system_uses_light_theme() -> bool:
             return bool(value)
     except OSError:
         return False
-
-
-DEFAULT_ACCENT = (0x00, 0x78, 0xD4)  # Windows 默认蓝
-
-
-def system_accent_color() -> tuple[int, int, int]:
-    """系统的强调色（RGB）。
-
-    首选资源管理器调色板里的 Accent 项（就是"设置 → 个性化 → 颜色"里选的那个颜色），
-    它是一段 REG_BINARY，每组 4 字节按 B,G,R,A 排列。
-    取不到时退回 DWM 的 ColorizationColor（0xAABBGGRR）。
-    """
-    import winreg
-
-    try:
-        with winreg.OpenKey(
-            winreg.HKEY_CURRENT_USER,
-            r"Software\Microsoft\Windows\CurrentVersion\Explorer\Accent",
-        ) as key:
-            palette, _ = winreg.QueryValueEx(key, "AccentPalette")
-        offset = 3 * 4  # Light3, Light2, Light1, Accent
-        blue, green, red = palette[offset], palette[offset + 1], palette[offset + 2]
-        if red or green or blue:
-            return red, green, blue
-    except (OSError, IndexError, TypeError):
-        pass
-
-    try:
-        with winreg.OpenKey(winreg.HKEY_CURRENT_USER, r"Software\Microsoft\Windows\DWM") as key:
-            value, _ = winreg.QueryValueEx(key, "ColorizationColor")
-        red = value & 0xFF
-        green = (value >> 8) & 0xFF
-        blue = (value >> 16) & 0xFF
-        if red or green or blue:
-            return red, green, blue
-    except OSError:
-        pass
-    return DEFAULT_ACCENT
-
-
-def readable_accent(rgb: tuple[int, int, int], light_theme: bool) -> tuple[int, int, int]:
-    """让强调色在当前底色上看得清：浅色主题压暗，深色主题提亮。"""
-    red, green, blue = rgb
-    luminance = (0.2126 * red + 0.7152 * green + 0.0722 * blue) / 255
-    if light_theme and luminance > 0.62:
-        scale = 0.62 / luminance
-        return tuple(max(0, min(255, int(channel * scale))) for channel in rgb)
-    if not light_theme and luminance < 0.5:
-        blend = min(1.0, (0.5 - luminance) / 0.5) * 0.55
-        return tuple(int(channel + (255 - channel) * blend) for channel in rgb)
-    return rgb

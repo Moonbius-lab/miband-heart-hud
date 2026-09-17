@@ -11,6 +11,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from hr_hud.rest import RestReminder, in_window, parse_hhmm  # noqa: E402
+from hr_hud.util import setup_console  # noqa: E402
 
 
 def at(hour: int, minute: int, day: int = 17) -> datetime:
@@ -18,6 +19,7 @@ def at(hour: int, minute: int, day: int = 17) -> datetime:
 
 
 def main() -> int:
+    setup_console()
     failures: list[str] = []
 
     def check(name: str, condition: bool, detail: str = "") -> None:

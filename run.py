@@ -17,7 +17,7 @@ import os
 import sys
 
 from hr_hud.config import Config
-from hr_hud.util import log
+from hr_hud.util import log, setup_console
 from hr_hud.win32 import set_dpi_awareness, single_instance
 
 
@@ -37,13 +37,18 @@ def _scan() -> int:
 
 
 def main(argv: list[str] | None = None) -> int:
+    setup_console()
     parser = argparse.ArgumentParser(description="小米手环心率 · Windows 任务栏组件")
     parser.add_argument("--demo", action="store_true", help="用模拟心率运行（不需要手环）")
     parser.add_argument("--test-alert", action="store_true", help="启动后立刻发一条测试提醒")
     parser.add_argument("--scan", action="store_true", help="只扫描设备后退出")
     parser.add_argument("--address", default="", help="指定手环蓝牙地址")
     parser.add_argument("--no-widget", action="store_true", help="不显示任务栏组件")
+    parser.add_argument("--diag", action="store_true", help="打包后诊断：逐个加载 Qt 的 DLL 看哪个失败")
     args = parser.parse_args(argv)
+
+    if args.diag:
+        return _diagnose_qt()
 
     set_dpi_awareness()
     if args.scan:
@@ -79,6 +84,39 @@ def main(argv: list[str] | None = None) -> int:
     sys.stdout.flush()
     sys.stderr.flush()
     os._exit(code)
+
+
+def _diagnose_qt() -> int:
+    """打包后诊断用：在冻结环境里逐个加载 Qt6*.dll，定位加载失败的那一个。"""
+    import ctypes
+    import os
+
+    base = getattr(sys, "_MEIPASS", os.path.dirname(os.path.abspath(sys.executable)))
+    for root in (os.path.join(base, "_internal"), base):
+        pyside = os.path.join(root, "PySide6")
+        if not os.path.isdir(pyside):
+            continue
+        print(f"[diag] 运行环境: {base}")
+        print(f"[diag] PySide6 目录: {pyside}")
+        if hasattr(os, "add_dll_directory"):
+            for extra in (pyside, root, os.path.join(pyside, "plugins", "platforms")):
+                if os.path.isdir(extra):
+                    try:
+                        os.add_dll_directory(extra)
+                        print(f"[diag] 已加入 DLL 搜索目录: {extra}")
+                    except OSError as exc:
+                        print(f"[diag] 加入失败 {extra}: {exc}")
+        for name in sorted(os.listdir(pyside)):
+            if not (name.startswith("Qt6") and name.endswith(".dll")):
+                continue
+            try:
+                ctypes.WinDLL(os.path.join(pyside, name))
+                print(f"[diag] OK   {name}")
+            except OSError as exc:
+                print(f"[diag] FAIL {name} -> {exc}")
+        return 0
+    print("[diag] 找不到 PySide6 目录")
+    return 1
 
 
 if __name__ == "__main__":

@@ -11,9 +11,11 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from hr_hud import toast  # noqa: E402
+from hr_hud.util import setup_console  # noqa: E402
 
 
 def main() -> int:
+    setup_console()
     print("注册通知应用 ID…")
     print("  注册结果：", toast.ensure_registered())
 

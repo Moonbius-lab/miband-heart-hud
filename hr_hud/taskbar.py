@@ -17,7 +17,7 @@ import time
 from ctypes import wintypes
 from typing import Optional
 
-from . import icons, widget_render
+from . import widget_render
 from .util import log
 from .widget_render import pick_family, reading_width
 from .win32 import (
@@ -69,11 +69,10 @@ from .win32 import (
     user32,
     window_rect,
 )
-from .zones import HEART_COLOR, ZONE_COLOR
+from .zones import HEART_COLOR
 
 CLASS_NAME = "MiBandHeartHUDTaskbarWidget"
 KEY_COLOR = 0x00FF00FF  # 透明色键（品红），只在 clear 模式下用
-GRAY = 0x00909090
 
 QS_ALLINPUT = 0x04FF
 WS_POPUP = 0x80000000
@@ -99,18 +98,9 @@ SWALLOWED_MESSAGES = frozenset(
         WM_IME_NOTIFY,
     }
 )
-FW_SEMIBOLD = 600
-DEFAULT_CHARSET = 1
-OUT_TT_PRECIS = 5
-CLIP_DEFAULT_PRECIS = 0
-DEFAULT_PITCH = 0
-FF_DONTCARE = 0
-NULL_PEN = 8
 LWA_COLORKEY = 0x1
 
-PAD = 7
 HEART = 13
-GAP = 6
 
 # 没检测到 FluentFlyout 组件时的左侧默认槽位（它在任务栏左端，约到 410 结束）
 DEFAULT_LEFT_ANCHOR = 410
@@ -118,22 +108,8 @@ CARD_LIGHT_BG = "#F0F0F0"
 CARD_DARK_BG = "#232323"
 
 
-def _bgr(hex_color: str) -> int:
-    value = hex_color.lstrip("#")
-    r, g, b = int(value[0:2], 16), int(value[2:4], 16), int(value[4:6], 16)
-    return r | (g << 8) | (b << 16)
-
-
 def _rgb(r: int, g: int, b: int) -> int:
     return r | (g << 8) | (b << 16)
-
-
-def card_color(light_theme: bool) -> int:
-    return _rgb(0xF0, 0xF0, 0xF0) if light_theme else _rgb(0x2B, 0x2B, 0x2B)
-
-
-def _font_height(card_height: int) -> int:
-    return max(12, int(card_height * 0.62))
 
 
 def tray_reserve(taskbar: int) -> int:

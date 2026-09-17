@@ -10,6 +10,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from hr_hud.zones import HeartMonitor  # noqa: E402
+from hr_hud.util import setup_console  # noqa: E402
 
 
 class FakeClock:
@@ -37,6 +38,7 @@ def feed(monitor: HeartMonitor, clock: FakeClock, bpm: int, seconds: float, step
 
 
 def main() -> int:
+    setup_console()
     clock = FakeClock()
     monitor = HeartMonitor(
         high_bpm=150, low_bpm=45, confirm_seconds=10, rearm_seconds=30,

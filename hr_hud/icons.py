@@ -13,7 +13,6 @@ from pathlib import Path
 
 ASSETS = Path(__file__).resolve().parent.parent / "assets" / "icons"
 HEART_FILLED = "ic_fluent_heart_24_filled.svg"
-HEART_REGULAR = "ic_fluent_heart_20_regular.svg"
 
 
 @lru_cache(maxsize=32)

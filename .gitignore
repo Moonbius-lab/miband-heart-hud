@@ -1,15 +1,27 @@
+# ---- Python 缓存与虚拟环境 ----
 __pycache__/
 *.py[cod]
 .venv/
+.venv-build/
 venv/
-dist/
-build/
-*.spec
+*.egg-info/
 
-# 调试产物（预览图、临时配置）
+# ---- 构建产物：统一落在 packaging/out/ 下 ----
+packaging/out/
+build/
+dist/
+build_probe/
+dist_probe/
+
+# ---- 签名材料：私钥绝不入库 ----
+*.pfx
+*.pvk
+*.snk
+
+# ---- 调试产物（预览图、临时配置） ----
 tools/_*.png
 tools/_*.json
 
-# 本地配置与日志（真机上生成在 %LOCALAPPDATA%\MiBandHeartHUD）
+# ---- 本地配置与日志（真机上生成在 %LOCALAPPDATA%\MiBandHeartHUD） ----
 config.json
 *.log

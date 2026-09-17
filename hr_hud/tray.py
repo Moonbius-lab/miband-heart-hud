@@ -7,13 +7,13 @@ from __future__ import annotations
 import os
 from typing import Optional
 
-from PySide6.QtCore import QPoint, Qt, Signal
-from PySide6.QtGui import QActionGroup, QColor, QCursor, QIcon, QPainter, QPixmap
+from PySide6.QtCore import Signal
+from PySide6.QtGui import QActionGroup, QCursor, QIcon
 from PySide6.QtWidgets import QInputDialog, QMenu, QSystemTrayIcon
 
 from .config import APP_DIR, CONFIG_PATH
 from . import icons
-from .zones import HEART_COLOR, ZONE_COLOR
+from .zones import HEART_COLOR
 
 
 def make_icon(bpm: Optional[int], zone: str, connected: bool, color: str = HEART_COLOR) -> QIcon:
@@ -114,12 +114,6 @@ class TrayIcon(QSystemTrayIcon):
             menu = self.contextMenu()
             if menu is not None:
                 menu.popup(QCursor.pos())
-
-    def popup_menu(self) -> None:
-        """在鼠标位置弹出设置菜单（托盘图标或任务栏组件被点击时调用）。"""
-        menu = self.contextMenu()
-        if menu is not None:
-            menu.popup(QCursor.pos())
 
     def _edit_thresholds(self) -> None:
         high, ok = QInputDialog.getInt(

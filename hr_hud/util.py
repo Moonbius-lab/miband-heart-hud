@@ -5,10 +5,25 @@
 from __future__ import annotations
 
 import datetime as _dt
+import sys
 
 from .config import LOG_DIR
 
 _log_file = LOG_DIR / "app.log"
+
+
+def setup_console() -> None:
+    """控制台打印 ★ ✅ 这类字符时的自保。
+
+    Windows 中文控制台默认是 GBK 代码页，GBK 里没有的字符（emoji、部分符号）
+    会让 print 直接抛 UnicodeEncodeError，把脚本整个打断。这里只把编码错误
+    降级成 '?'，中文该显示什么还是显示什么。
+    """
+    for stream in (sys.stdout, sys.stderr):
+        try:
+            stream.reconfigure(errors="replace")
+        except (AttributeError, OSError, ValueError):
+            pass
 
 
 def log(message: str) -> None:

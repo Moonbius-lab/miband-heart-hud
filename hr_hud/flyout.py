@@ -39,7 +39,7 @@ from PySide6.QtGui import (
 )
 from PySide6.QtWidgets import QApplication, QWidget
 
-from . import icons, widget_render
+from . import icons
 from .util import log
 from .win32 import find_taskbar, make_no_activate, system_uses_light_theme, window_rect
 from .widget_render import (
